@@ -99,16 +99,61 @@ if __name__ == "__main__":
 ## Configuring Gunicorn
 
 1. `$ cd project-dir` activate virtual environment then `$ pip install gunicorn` to install gunicorn.
+2. `$ gunicorn --bind 0.0.0.0:5000 wsgi:app` to start the app in gunicorn server.
+3. `$ deactivate` to deactivate the virtual environment.
+4. `$ sudo nano /etc/systemd/system/app.service` here app is the gunicorn service name. Change according to your choice. Conventionally use the name of the app. Paste the following:
 
+```conf
+[Unit]
+Description=Gunicorn instance to serve a flask app
+After=network.target
+
+[Service]
+User=lina 
+Group=www-data
+WorkingDirectory=/home/lina/flask-gunicorn
+Environment="PATH=/home/lina/flask-gunicorn/env/bin"
+ExecStart=/home/lina/flask-gunicorn/env/bin/gunicorn --workers 3 --bind unix:flask-gunicorn.sock -m 007 wsgi:app
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**Note:** Here define the current username, path of virtual env bin and gunicorn service path and here `flask-gunicorn` is the app name.
+
+5. `$ sudo systemctl start flask-gunicorn` to start the gunicorn server.
+6. `$ sudo systemctl enable flask-gunicorn` to enable the gunicorn server on system startup.
+7. `$ sudo systemctl status flask-gunicorn` to check the status.
+8. `$ sudo systemctl stop flask-gunicorn` to stop the service.
 
 ## Configuring Nginx
+1. `$ sudo apt install nginx` to install nginx server.
+2. `$ sudo nano /etc/nginx/sites-available/flask-gunicorn` create a nginx server configaration.
+```conf
+server {
+    listen 80;
+    server_name ServerIP or domain name;
 
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/home/lina/flask-gunicorn/flask-gunicorn.sock;
+    }
+}
+``` 
+3. `$ sudo ln -s /etc/nginx/sites-available/flask-gunicorn /etc/nginx/sites-enabled` to enable the conf file.
+4. `$ sudo unlink /etc/nginx/sites-enabled/default` to disable the default site.
+
+5. `$ sudo nginx -t` to check the configaration file.
+6. `$ sudo systemctl restart nginx` to restart the server.
+7. `$ sudo ufw delete allow 5000` to delete the development port.
+8. `$ sudo ufw allow 'Nginx Full'` to allow nginx traffic.
 
 ## Configuring Domain
 
 
 ## Configuring Let's Encrypt SSL
-
+1. `$ sudo apt install python3-certbot-nginx` to install certbot.
+2. 
 
 
 ## Setting up multiple applications
