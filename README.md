@@ -1,15 +1,19 @@
 # Gunicorn-Nginx
 This repository and README file describe basic python and flask setup and deploy from local to cloud using Ubuntu 20.04 LTS, Nginx Web Server, Sqlite Database and Let's Encrypt SSL.
 
-Usage Note: This documentation is for both local and remote machine (Local & Cloud flagged). If the local machine is already configured then just setup the cloud according to the below guidelines.
+**Usage Note:** This documentation is for both local and remote machine (Local & Cloud flagged). If the local machine is already configured then just setup the cloud according to the below guidelines.
 
 ## Python and Virtual Environment Intro
-In this repo described the fully optimized way to install Python using pyenv so that we can install and manage different versions of Python in the both local and remote machine. Then described the optimized way to install python virtual environment for isolating individual python application.
+In this repo described the fully optimized way to install Python using **pyenv** so that we can install and manage different versions of Python in the both local and remote machine. Then described the optimized way to install python virtual environment for isolating individual python application.
 
 **Important:** Using python virtual environment is very useful for developing any kind of python applications (ex: this flask application). It is because we can use different version and dependencies for each appliccation running in the same machine. Moreover, as the virtual environment is installed right inside the project folder so that the envrionment for the application remains same for local and remote machine when it is subject to deploy from local to remote server. So that, the dependencies never conflict.
 
 ## Flask, Gunicorn & Nginx Intro
+Flask is a microframework written in python for developing web applications and web API with minimal effort.
 
+Gunicorn is a python application server that helps to run python application (in this case flask application) also can be run django application as well.
+
+Nginx is a high end web application server for serving static and dynamic content. In this repo nginx is used with gunicorn for running our flask aplication.
 
 ## Ubuntu 20.04 Setup (Local & Cloud)
 We will not use root user alwyas. That's why we will create a new user with the sudo privilege.
@@ -45,6 +49,7 @@ Pyenv is a python package manager that can be used to manage multiple versions o
 ##  Installing Python (Local & Remote)
 **Note:** The python version to be installed depend on the version that require the application. We can install multiple version of python and switch back to specific verion for our specific python version.
 
+0. `$ pyenv install --list` to see all the available python version.
 1. `$ pyenv install x.x.x` to install the needed version. We can install multiple versions. We can activate specific version when we need to create a virtual environment for a specific application.
 2. `$ pyenv versions` to see installed/available version to activate.
 3. `$ pyenv global x.x.x` to activate a specific python version locally.
@@ -52,13 +57,14 @@ Pyenv is a python package manager that can be used to manage multiple versions o
 
 ## Creating Virtual Environments (Local & Remote)
 
-**Important:** Before creating any virtual environment, switch to the desired python version using `$ pyenv global x.x.x` 
+**Important:** Before creating any virtual environment, switch to the desired python version using `$ pyenv global x.x.x`.
 
 1. `$ pip install --user virtualenv` to install virtual environment.
 2. cd to project directory. now to create a virtual env goto your project directory and type `$ python -m virtualenv env` it will create a virtual environment in the env folder.
 3. `$ source env/bin/activate` to active the virtual env. Now you are isolated in the project directory with your own python version and packages.
+4. To check the python and pip location type `$ which python` and `$ which pip`. Check if the installation location indicating the env folder or not. If indicates the env folder then the environment working fine (Environment activation is needed before checking).
 
-**Note:** Make sure the app was developed locally used python version is same as the virtual env.
+**Note:** Make sure the app that was developed locally used python version is same as the virtual env.
 
 ## Develop Flask Application (Locally)
 Now develop the flask application locally. Make sure the version of virtual environment of development environment is same as the remote environment we just created.
@@ -68,9 +74,9 @@ Now develop the flask application locally. Make sure the version of virtual envi
 ## Pushing to GitHub (Local)
 
 1. Upload the source file to a GitHub repo. Keep env folder in the .gitignore file. So that env folder will not be uploaded. Because it is created in the remote server by following above instructions.
-2. If the application uses databases rather than sqlite3. Then backup the database and put in source file.
+2. If the application uses databases rather than sqlite3. Then backup the database and put in source file (better keep that db file in db folder).
 3. `$ git init` then `$ git add .` the `$ git commit -m 'test deploy'`
-4. `$ git remote add origin git@github.com:mohuls/nginx-wp.git` the GitHub repo we just created on GitHub.
+4. `$ git remote add origin git@github.com:mohuls/flask-gunicorn.git` the GitHub repo we just created on GitHub.
 5. `$ git push -u origin master` to push the full project to GitHub repo.
 
 ## Deploying to Live Server (Remote)
@@ -85,7 +91,7 @@ Now develop the flask application locally. Make sure the version of virtual envi
 7. `$ sudo ufw allow 5000` to allow the development port.
 8. Browse the server IP to see if the app is running. (It should be running actually).
 
-## Creating the WSGI Entry Point
+## Creating the WSGI Entry Point (Remote)
 
 1. cd to project dir then `$ nano wsgi.py` to create a wsgi file. paste the following:
 ```python
@@ -99,7 +105,7 @@ if __name__ == "__main__":
 ## Configuring Gunicorn
 
 1. `$ cd project-dir` activate virtual environment then `$ pip install gunicorn` to install gunicorn.
-2. `$ gunicorn --bind 0.0.0.0:5000 wsgi:app` to start the app in gunicorn server.
+2. `$ gunicorn --bind 0.0.0.0:5000 wsgi:app` to start the app in gunicorn server. Again browse the server IP the app is running using gunicorn application server.
 3. `$ deactivate` to deactivate the virtual environment.
 4. `$ sudo nano /etc/systemd/system/app.service` here app is the gunicorn service name. Change according to your choice. Conventionally use the name of the app. Paste the following:
 
@@ -147,6 +153,7 @@ server {
 6. `$ sudo systemctl restart nginx` to restart the server.
 7. `$ sudo ufw delete allow 5000` to delete the development port.
 8. `$ sudo ufw allow 'Nginx Full'` to allow nginx traffic.
+9. Now browse the server IP again. Now it should serve the application using Nginx web server by piping to gunicorn server.
 
 ## Configuring Domain
 
