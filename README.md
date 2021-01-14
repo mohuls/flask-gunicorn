@@ -41,7 +41,7 @@ Pyenv is a python package manager that can be used to manage multiple versions o
 4. `$ sudo echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc`
 5. `$ sudo echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc`
 6. `$ sudo echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n eval "$(pyenv init -)"\nfi' >> ~/.bashrc`
-7. `$ sudo exec "$SHELL"`
+7. `$ exec "$SHELL"`
 8. `$ pyenv --version`. Now pyenv is installed successfully.
 
 **Learn more about pyenv:** https://realpython.com/intro-to-pyenv/
@@ -60,7 +60,7 @@ Pyenv is a python package manager that can be used to manage multiple versions o
 **Important:** Before creating any virtual environment, switch to the desired python version using `$ pyenv global x.x.x`.
 
 1. `$ pip install --user virtualenv` to install virtual environment.
-2. cd to project directory. now to create a virtual env goto your project directory and type `$ python -m virtualenv env` it will create a virtual environment in the env folder.
+2. `$ mkdir ~/flask-gunicorn`  `$ cd ~/flask-gunicorn` to project directory. Now to create a virtual env goto your project directory and type `$ python -m virtualenv env` it will create a virtual environment in the env folder.
 3. `$ source env/bin/activate` to active the virtual env. Now you are isolated in the project directory with your own python version and packages.
 4. To check the python and pip location type `$ which python` and `$ which pip`. Check if the installation location indicating the env folder or not. If indicates the env folder then the environment working fine (Environment activation is needed before checking).
 
