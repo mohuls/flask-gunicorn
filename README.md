@@ -81,15 +81,15 @@ Now develop the flask application locally. Make sure the version of virtual envi
 
 ## Deploying to Live Server (Remote)
 
-1. Clone the github repo in a directory at server.
-2. Copy all the cloned files to project dir where you created the virtual environment.
+1. Clone the github repo `$ git clone https://github.com/mohuls/flask-gunicorn` in a directory at server.
+2. Copy all the cloned files to project dir where you created the virtual environment `$ cp -a flask-gunicorn/. ~/flask-gunicorn`.
 2. cd to the project dir.
 3. `$ source env/bin/activate` to activate the virtual env (important).
 4. `$ pip install -r requirements.txt` to install all the required package.
 5. `$ nano app.py` and add `host='0.0.0.0'` to the app.run. The line will be like `app.run(debug=True, host='0.0.0.0')`.
-6. `$ python app.py` to run the development server.
-7. `$ sudo ufw allow 5000` to allow the development port.
-8. Browse the server IP to see if the app is running. (It should be running actually).
+6. `$ sudo ufw allow 5000` to allow the development port.
+7. `$ python app.py` to run the development server.
+8. Now Browse the server IP with port 5000 (http://server-ip:5000)to see if the app is running. (It should be running actually).
 
 ## Creating the WSGI Entry Point (Remote)
 
@@ -157,10 +157,21 @@ server {
 
 ## Configuring Domain
 
+1. `$ sudo nano /etc/nginx/sites-available/flask-gunicorn` edit the server block file. Replace the domain name you want to configure with the server IP.
+2. Make sure you have added the IP address in the domain's DNS.
+3. `$ sudo systemctl restart nginx` to restart the server.
+4. Wait for propagrating the domain wordwide (can take upto 48 hours)
+5. Now the app sould be accessed by the domain name.
 
 ## Configuring Let's Encrypt SSL
 1. `$ sudo apt install python3-certbot-nginx` to install certbot.
-2. 
-
+2. `$ sudo ufw allow 'Nginx Full'` allow Nginx in http and htpps.
+3 `$ sudo nano /etc/nginx/sites-available/flask-gunicorn` and add the host name as the domain name that is configured with the server ip:
+server_name mohuls.com www.mohuls.com;
+4. `$ sudo systemctl restart nginx` restarts nginx.
+5. `$ sudo certbot --nginx -d mohuls.com -d www.mohuls.com` starts the installation process. Answer appropriate to the asked questions to complete.
+6. `$ sudo systemctl status certbot.timer` to check status.
+7. `$ sudo certbot renew --dry-run` tests renewal process.
+Now the site should serve in https.
 
 ## Setting up multiple applications
